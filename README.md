@@ -70,6 +70,8 @@ BEP simplifies the election process by acting as a **smart assistant** that:
 
 BEP uses **Firebase Firestore** to store anonymized user interaction data.
 
+In addition to storing user data, BEP logs interaction events in Firestore to simulate real-world analytics usage.
+
 ### Implementation:
 
 * Data is saved when the user completes the flow

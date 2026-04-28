@@ -339,9 +339,13 @@ async function saveUserData(data) {
   try {
     const { db, addDoc, collection } = await getFirebaseServices();
     await addDoc(collection(db, "users"), data);
+    await addDoc(collection(db, "events"), {
+      type: "wizard_completed",
+      timestamp: new Date().toISOString()
+    });
     showMessage(elements.firebaseSaveStatus, "Your data has been securely stored to improve election assistance services.");
     renderUserCount();
-    console.log("BEP user data saved to Firestore");
+    console.log("BEP user data and interaction event saved to Firestore");
   } catch (error) {
     showMessage(elements.firebaseSaveStatus, "We could not store this session right now. Your guidance remains available on this page.");
     console.error("BEP user data save failed", error);

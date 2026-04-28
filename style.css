@@ -521,11 +521,16 @@ input[type="date"] {
   margin-bottom: 8px;
 }
 
-.community-card p:last-child {
-  margin-bottom: 0;
+.community-count {
+  margin: 10px 0 0;
   color: var(--green);
   font-size: 1.1rem;
   font-weight: 850;
+}
+
+.analytics-note {
+  margin: 10px 0 0;
+  font-size: 0.92rem;
 }
 
 .checklist-card ul,
