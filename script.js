@@ -9,6 +9,26 @@ let firebaseServices = null;
 const reminderStorageKey = "bepVotingReminderDate";
 const themeStorageKey = "bepTheme";
 
+function getEligibility(age) {
+  return Number(age) < 18 ? "not eligible" : "eligible";
+}
+
+function getGuidance({ age, registered, firstTime = "no", location = "your area" }) {
+  if (getEligibility(age) === "not eligible") {
+    return "not eligible to vote yet";
+  }
+
+  if (registered === "no") {
+    return `register to vote and confirm your voter list status for ${location}`;
+  }
+
+  if (firstTime === "yes") {
+    return "first-time voter guidance with voting checklist";
+  }
+
+  return "eligible registered voter guidance with voting checklist";
+}
+
 const steps = [
   { key: "age", label: "Age" },
   { key: "registered", label: "Registered" },
@@ -211,7 +231,7 @@ function handleStepSubmit(event) {
     return;
   }
 
-  if (appState.currentStep === 0 && Number(appState.age) < 18) {
+  if (appState.currentStep === 0 && getEligibility(appState.age) === "not eligible") {
     console.log("BEP decision: not eligible because age is under 18");
     showGuidance();
     return;
@@ -382,7 +402,7 @@ function buildGuidance() {
   const locationText = appState.location || "your area";
   const isSenior = age >= 60;
 
-  if (age < 18) {
+  if (getEligibility(age) === "not eligible") {
     return {
       persona: "Future voter",
       title: "You are not eligible to vote yet.",

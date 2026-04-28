@@ -150,6 +150,16 @@ BEP uses **Firebase Firestore** to store anonymized user interaction data.
 * Keyboard focus handling
 * High-contrast UI design
 
+## 🧪 Testing Strategy
+A basic test suite (test.js) validates eligibility logic and user flow scenarios.
+
+A lightweight test suite validates:
+- Eligibility logic
+- Registration flow
+- Decision-based outputs
+
+Tests are implemented in test.js and ensure correctness of core assistant logic.
+
 ---
 
 ## ⚠️ Assumptions
