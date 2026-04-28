@@ -7,6 +7,7 @@ const firebaseConfig = {
 const isFirebaseConfigured = Object.values(firebaseConfig).every((value) => value && value !== "...");
 let firebaseServices = null;
 const reminderStorageKey = "bepVotingReminderDate";
+const themeStorageKey = "bepTheme";
 
 const steps = [
   { key: "age", label: "Age" },
@@ -42,10 +43,12 @@ const elements = {
   reminderStatus: document.getElementById("reminderStatus"),
   savedReminderText: document.getElementById("savedReminderText"),
   firebaseSaveStatus: document.getElementById("firebaseSaveStatus"),
-  userCountText: document.getElementById("userCountText")
+  userCountText: document.getElementById("userCountText"),
+  themeToggle: document.getElementById("themeToggle")
 };
 
 function initApp() {
+  applySavedTheme();
   renderProgress();
   renderStep();
   renderSavedReminder();
@@ -64,6 +67,27 @@ function bindEvents() {
     focusCurrentInput();
   });
   elements.reminderForm.addEventListener("submit", saveReminder);
+  elements.themeToggle.addEventListener("click", toggleTheme);
+}
+
+function applySavedTheme() {
+  const savedTheme = localStorage.getItem(themeStorageKey) || "light";
+  applyTheme(savedTheme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  const nextTheme = currentTheme === "dark" ? "light" : "dark";
+  localStorage.setItem(themeStorageKey, nextTheme);
+  applyTheme(nextTheme);
+  console.log(`BEP theme changed: ${nextTheme}`);
+}
+
+function applyTheme(theme) {
+  const normalizedTheme = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = normalizedTheme;
+  elements.themeToggle.textContent = normalizedTheme === "dark" ? "Light mode" : "Dark mode";
+  elements.themeToggle.setAttribute("aria-pressed", String(normalizedTheme === "dark"));
 }
 
 function renderProgress() {
