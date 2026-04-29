@@ -9,6 +9,17 @@ let firebaseServices = null;
 const reminderStorageKey = "bepVotingReminderDate";
 const themeStorageKey = "bepTheme";
 
+// Google Analytics helper — sends events if gtag is loaded
+function trackEvent(action, category, label, value) {
+  if (typeof gtag === "function") {
+    gtag("event", action, {
+      event_category: category,
+      event_label: label,
+      value: value
+    });
+  }
+}
+
 function getEligibility(age) {
   return Number(age) < 18 ? "not eligible" : "eligible";
 }
@@ -74,6 +85,7 @@ function initApp() {
   renderSavedReminder();
   renderUserCount();
   bindEvents();
+  trackEvent("app_init", "lifecycle", "BEP initialized");
   console.log("BEP flow initialized");
 }
 
@@ -153,6 +165,7 @@ function renderStep() {
 
   elements.stepContent.innerHTML = renderers[appState.currentStep]();
   focusCurrentInput();
+  trackEvent("step_view", "wizard", steps[appState.currentStep].key, appState.currentStep);
   console.log(`BEP step rendered: ${steps[appState.currentStep].key}`);
 }
 
@@ -323,6 +336,7 @@ function showGuidance() {
   elements.resultBody.innerHTML = guidance.html;
   elements.resultCard.classList.remove("hidden");
   elements.resultCard.focus();
+  trackEvent("guidance_shown", "wizard", guidance.decisionLog);
   console.log(`BEP final decision: ${guidance.decisionLog}`);
   saveUserData(getUserDataForStorage());
 }
@@ -540,6 +554,7 @@ function saveReminder(event) {
   localStorage.setItem(reminderStorageKey, selectedDate);
   renderSavedReminder();
   showMessage(elements.reminderStatus, `Reminder saved for ${formatDate(selectedDate)}.`);
+  trackEvent("reminder_saved", "engagement", selectedDate);
   console.log(`BEP reminder saved: ${selectedDate}`);
 }
 

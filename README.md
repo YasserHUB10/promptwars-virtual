@@ -66,34 +66,40 @@ BEP simplifies the election process by acting as a **smart assistant** that:
 
 ---
 
-## ☁️ Google Services Integration (Firebase)
+## ☁️ Google Cloud Services Integration
 
-BEP uses **Firebase Firestore** to store anonymized user interaction data.
+### Firebase Firestore (Data Storage)
 
-In addition to storing user data, BEP logs interaction events in Firestore to simulate real-world analytics usage.
-
-### Implementation:
+BEP uses **Firebase Firestore** via CDN to store anonymized user interaction data.
 
 * Data is saved when the user completes the flow
-* Stored fields:
+* Stored fields: age, registration status, voting experience, location, timestamp
+* Interaction events (`wizard_completed`) are logged in a separate `events` collection
+* Retrieves total user count from Firestore and displays community usage
 
-  * Age
-  * Registration status
-  * Voting experience
-  * Location
-  * Timestamp
+### Google Analytics (gtag.js)
 
-### Additional Feature:
+BEP integrates **Google Analytics** via CDN for tracking:
 
-* Retrieves total user count from Firestore
-* Displays community usage:
+* Page views (automatic)
+* Agent interactions:
+  * `app_init` — Application initialized
+  * `step_view` — Wizard step navigation
+  * `guidance_shown` — Final guidance displayed
+  * `reminder_saved` — Voting reminder set
 
-  > “500+ users have used BEP”
+### Google Cloud Run Deployment
 
-### Purpose:
+BEP includes production-ready deployment configuration:
 
-* Demonstrates real-world data handling
-* Enables scalable analytics and improvements
+* **Dockerfile** — Minimal `nginx:alpine` container serving static files on port 8080
+* **cloudbuild.yaml** — CI/CD pipeline that builds, pushes, and deploys to Cloud Run in `asia-south1`
+
+#### Deploy to Cloud Run:
+
+```bash
+gcloud builds submit --config cloudbuild.yaml
+```
 
 ---
 
@@ -104,7 +110,9 @@ In addition to storing user data, BEP logs interaction events in Firestore to si
 * HTML (structure)
 * CSS (UI/UX design)
 * Vanilla JavaScript (logic + interactivity)
-* Firebase Firestore (backend service)
+* Firebase Firestore (backend data service via CDN)
+* Google Analytics (user interaction tracking via CDN)
+* Docker + Cloud Run (deployment)
 
 ### Architecture:
 
@@ -112,15 +120,17 @@ In addition to storing user data, BEP logs interaction events in Firestore to si
 * Modular rendering functions
 * Event-driven workflow
 * Lazy loading Firebase to optimize performance
+* Analytics event tracking via `trackEvent()` helper
 
 ---
 
 ## ⚡ Efficiency & Performance
 
-* Total project size: ~32 KB
-* No heavy frameworks
-* Lazy loading Firebase modules
+* Total project size: ~50 KB (well under 1 MB limit)
+* No heavy frameworks or npm dependencies
+* Lazy loading Firebase modules via CDN
 * Fast rendering and minimal resource usage
+* Alpine-based Docker image (~25 MB)
 
 ---
 
@@ -129,19 +139,43 @@ In addition to storing user data, BEP logs interaction events in Firestore to si
 * No sensitive data collected
 * Only anonymized inputs stored
 * Input validation implemented
-* Safe DOM rendering (escaped inputs)
+* Safe DOM rendering (escaped inputs via `escapeHtml()`)
+* Firebase config uses placeholder values — replace before production
 
 ---
 
 ## 🧪 Testing
 
-* Input validation for all steps
-* Decision logic tested for:
+### Comprehensive Test Suite (`test.js`)
 
-  * Eligibility paths
-  * Registration flow
-  * Voting guidance
-* Manual browser testing across flows
+Run tests with:
+
+```bash
+npm test
+```
+
+**64 test cases** across **13 test groups** covering:
+
+| Group | Area | Tests |
+|-------|------|-------|
+| 1 | `getEligibility` — age eligibility | 8 |
+| 2 | `getGuidance` — decision logic branches | 6 |
+| 3 | Edge cases — empty/invalid/NaN inputs | 5 |
+| 4 | `escapeHtml` — XSS prevention | 5 |
+| 5 | `formatDate` — date formatting | 2 |
+| 6 | Steps configuration integrity | 4 |
+| 7 | `appState` — initial state validation | 5 |
+| 8 | `getStepStatus` — progress tracking | 4 |
+| 9 | `getUserDataForStorage` — data export | 6 |
+| 10 | `buildGuidance` — full guidance output | 11 |
+| 11 | `renderSeniorBox` — conditional rendering | 3 |
+| 12 | Firebase configuration validation | 2 |
+| 13 | `showMessage`/`clearMessage` — UI messaging | 2 |
+
+* Plain JavaScript (no test frameworks)
+* Uses `console.assert()`-style assertions
+* Clear pass/fail output with ✅/❌ indicators
+* Tests edge cases: NaN, null, undefined, empty strings, negative values
 
 ---
 
@@ -152,23 +186,14 @@ In addition to storing user data, BEP logs interaction events in Firestore to si
 * Keyboard focus handling
 * High-contrast UI design
 
-## 🧪 Testing Strategy
-A basic test suite (test.js) validates eligibility logic and user flow scenarios.
-
-A lightweight test suite validates:
-- Eligibility logic
-- Registration flow
-- Decision-based outputs
-
-Tests are implemented in test.js and ensure correctness of core assistant logic.
-
 ---
 
 ## ⚠️ Assumptions
 
 * Users provide basic demographic inputs
 * Location is approximate (city/state level)
-* Firebase configuration is properly set
+* Firebase configuration is properly set before production use
+* Google Analytics tracking ID is replaced with actual measurement ID
 
 ---
 
@@ -188,6 +213,21 @@ BEP aims to:
 * Real-time polling booth lookup
 * Multi-language support
 * Advanced analytics dashboard
+
+---
+
+## 📁 Project Structure
+
+```
+├── index.html          # Main HTML page with GA + Firebase CDN
+├── script.js           # Core agent logic + Firebase + Analytics
+├── style.css           # Responsive UI design
+├── test.js             # 64 unit tests (plain JavaScript)
+├── Dockerfile          # Cloud Run container configuration
+├── cloudbuild.yaml     # Google Cloud Build CI/CD pipeline
+├── package.json        # npm test script
+└── README.md           # Project documentation
+```
 
 ---
 
